@@ -2,8 +2,7 @@
 ;; Calculate the sum of two numbers
 ;; If they are 200, write them to stack B
 
-	LET16 B
-.dbs "Hello World"
+	LET16 A
 .db16u (101)
 	LET16 A
 .db16u (99)
@@ -11,9 +10,8 @@
 	LET16 A
 .db16u (200)
 	SUB16 A
-	LET16 A
-.lbl success
 	BRZ A
+.db16 (2)
 	END
-success:
 	MOV8 A B
+	
