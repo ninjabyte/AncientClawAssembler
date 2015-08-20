@@ -17,8 +17,9 @@ namespace ClawBinaryCompiler
 				binaryCode.AddRange(token.Bytes);
 			}
 
-			string hex = ByteArrayToString(binaryCode.ToArray());
+			File.WriteAllBytes("claw_sample.cex", binaryCode.ToArray());
 
+			string hex = ByteArrayToString(binaryCode.ToArray());
 			File.WriteAllText("claw_sample.cex.txt", hex);
 		}
 
