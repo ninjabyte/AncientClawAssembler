@@ -24,7 +24,7 @@ namespace ClawBinaryCompiler
 			definitionMatchRegex = "(?:^{SEARCH})|(?:([\\t ,:]){SEARCH}$)|(?:([\\t ,:]){REPLACE}([\\t ,:]))";
 			definitionReplaceRegex = "$1$2{REPLACE}$3";
 
-			dataRegex = new Regex(".[Dd][Bb]([12368FfUuSs]+)[\\t ]+(?:\\(([\\d\\t ,'.-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
+			dataRegex = new Regex("\\.[Dd][Bb]([12368FfUuSs]+)[\\t ]*(?:\\(([\\d\\t ,'.-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
 			instructionRegex = new Regex("^([\\w]+)[\\t ,]*([AaBbCcDd])?[\\t ,]*([AaBbCcDd]*)?$");
 			labelRegex = new Regex("^([\\w]):$");
 			defineRegex = new Regex("^#define[\\t ]+(\\w)+(?:[\t ]+.+)?");

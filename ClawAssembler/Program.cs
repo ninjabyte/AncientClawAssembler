@@ -17,16 +17,23 @@ namespace ClawBinaryCompiler
 			string inputFile = args[0];
 			string outputFile = (args.Length > 1) ? args[1] : "out.cex";
 
+			CodeLine[] lines;
 			ClawToken[] tokens;
 
 			try {
-				tokens = Parser.Parse(Parser.PreProcess(inputFile));
+				lines = Parser.PreProcess(inputFile);
+
+				foreach (CodeLine line in lines) {
+					if (line.Type == CodeLine.LineType.Unknown)
+						Console.WriteLine("WARN: Syntax error in line " + line.Number.ToString() + " in file " + line.File);
+				}
+
+				tokens = Parser.Parse(lines);
 
 				var binaryCode = new List<byte>();
 
-				foreach (ClawToken token in tokens) {
+				foreach (ClawToken token in tokens)
 					binaryCode.AddRange(token.Bytes);
-				}
 
 				File.WriteAllBytes(outputFile, binaryCode.ToArray());
 			} catch (Exception ex) {

@@ -1,12 +1,59 @@
-;; Sample
+LET32 D
+.DB32(0)
+; check that 99 - 101 = -2 (8 bit)
+LET8 A
+.DB8U(99)
+LET8 A 
+.DB8U(101)
+SUB8 A
+LET8 A 
+.DB8(-2)
+SUB8 A
+DEL8 A
+BRNZ
+.DB16(-19)
 
-;; Add two numbers and display them
+; check that 345 * -1 = -345 (16 bit)
+LET16 B
+.DB16(-1)
+MOV16 B A
+LET16 C
+.DB16(345)
+CPY16 C A
+MUL16 A
+LET16 A
+.DB16(-345)
+SUB16 A
+DEL16 A
+LET32 D
+.DB32(0)
+CPY32 D
+JMPNZ D
+DEL16 C
 
-LET16 A
-.DB16 (77)
-LET16 A
-.DB16 (1223)
-ADD16 A
-DMPSSTR
-.DBS "77 + 1223 ="
-DMPN16 A
+; test left shift (8 bit)
+LET8 B
+.DB8(2)
+LET8 B
+.DB8(1)
+SL8 B
+LET8 B
+.DB8(4)
+SUB8 B
+DEL8 B
+CPY32 D
+JMPNZ D
+DEL32 D
+
+LET32 D
+.DB32(1)
+ADD32 D
+CPY32 D
+LET32 D
+.DB32U(1000000)
+SUB32 D
+DEL32 D
+LET32 C
+.DB32(4)
+JMPNZ C ; subtraction was not zero, i.e. we aren't yet at 1000000
+END
