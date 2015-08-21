@@ -12,10 +12,13 @@ namespace ClawBinaryCompiler
 
 		public LineType Type { get; set; }
 
+		public string File { get; private set; }
+
 		public CodeLine(string Content, uint Number, string File)
 		{
 			this.Content = Content;
 			this.Number = Number;
+			this.File = File;
 		}
 
 		public enum LineType : byte
