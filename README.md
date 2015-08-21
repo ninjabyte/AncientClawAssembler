@@ -1,2 +1,2 @@
-# ClawBinaryCompiler
-Assembly compiler for the Claw binary language
+# ClawAssembly
+Assembler for CLAW
