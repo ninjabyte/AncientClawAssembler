@@ -24,7 +24,7 @@ namespace ClawBinaryCompiler
 			definitionMatchRegex = "(?:^{SEARCH})|(?:([\\t ,:]){SEARCH}$)|(?:([\\t ,:]){REPLACE}([\\t ,:]))";
 			definitionReplaceRegex = "$1$2{REPLACE}$3";
 
-			dataRegex = new Regex("\\.[Dd][Bb]([12368FfUuSs]+)[\\t ]*(?:\\(([\\d\\t ,'.\\-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
+			dataRegex = new Regex("\\.[Dd][Bb]([12368FfUuSs]+)[\\t ]*(?:\\(([\\d\\t ,\\'\\.\\-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
 			instructionRegex = new Regex("^([\\w]+)[\\t ,]*([AaBbCcDd])?[\\t ,]*([AaBbCcDd]*)?$");
 			labelRegex = new Regex("^([\\w]):$");
 			defineRegex = new Regex("^#define[\\t ]+(\\w)+(?:[\t ]+.+)?");
@@ -104,51 +104,30 @@ namespace ClawBinaryCompiler
 						}
 
 						if (type == "8") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToSByte(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToSByte(value)));
 						} else if (type == "8U") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToByte(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToByte(value)));
 						} else if (type == "16") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToInt16(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToInt16(value)));
 						} else if (type == "16U") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToUInt16(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToUInt16(value)));
 						} else if (type == "32") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToInt32(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToInt32(value)));
 						} else if (type == "32U") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToUInt32(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToUInt32(value)));
 						} else if (type == "F") {
-							if (values.Count > 1) {
-
-							} else {
-								tokens.Add(new DataToken(Convert.ToSingle(values[0])));
-							}
+							foreach (string value in values)
+								tokens.Add(new DataToken(Convert.ToSingle(value)));
 						} else if (type == "S") {
 							tokens.Add(new DataToken(strval));
 						} else {
-							// TODO: Some error handling
+							Console.WriteLine("Conversion error!");
 						}
 
 						sourceLine.Processed = true;
