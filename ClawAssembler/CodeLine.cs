@@ -4,7 +4,7 @@ namespace ClawBinaryCompiler
 {
 	public class CodeLine
 	{
-		public string Line { get; private set; }
+		public string Content { get; private set; }
 
 		public uint Number { get; private set; }
 
@@ -12,9 +12,9 @@ namespace ClawBinaryCompiler
 
 		public LineType Type { get; set; }
 
-		public CodeLine(string Line, uint Number)
+		public CodeLine(string Content, uint Number, string File)
 		{
-			this.Line = Line;
+			this.Content = Content;
 			this.Number = Number;
 		}
 

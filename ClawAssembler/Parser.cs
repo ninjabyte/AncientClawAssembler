@@ -53,15 +53,15 @@ namespace ClawBinaryCompiler
 
 				if (trimmedLine != "") {
 					if (dataRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Data });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Data });
 					} else if (instructionRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Instruction });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Instruction });
 					} else if (labelRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Label });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Label });
 					} else
-						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Unknown });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Unknown });
 				} else
-					codeLines.Add(new CodeLine("", lineCount){ Type = CodeLine.LineType.Empty, Processed = true });
+					codeLines.Add(new CodeLine("", lineCount, Filename){ Type = CodeLine.LineType.Empty, Processed = true });
 
 				lineCount++;
 			}
@@ -82,7 +82,7 @@ namespace ClawBinaryCompiler
 
 			// Process all elements
 			foreach (CodeLine sourceLine in CodeLines) {
-				string line = sourceLine.Line;
+				string line = sourceLine.Content;
 
 				if (!sourceLine.Processed && sourceLine.Type != CodeLine.LineType.Unknown) {
 					if (sourceLine.Type == CodeLine.LineType.Data) {
@@ -153,7 +153,7 @@ namespace ClawBinaryCompiler
 
 						sourceLine.Processed = true;
 					} else if (sourceLine.Type == CodeLine.LineType.Instruction) {
-						Match match = instructionRegex.Match(sourceLine.Line);
+						Match match = instructionRegex.Match(sourceLine.Content);
 						string mnemoric = match.Groups[1].Value.ToUpper();
 						string instack = match.Groups[2].Value.ToUpper();
 						string outstack = match.Groups[3].Value.ToUpper();
@@ -166,7 +166,7 @@ namespace ClawBinaryCompiler
 
 						sourceLine.Processed = true;
 					} else if (sourceLine.Type == CodeLine.LineType.Label) {
-						Match match = labelRegex.Match(sourceLine.Line);
+						Match match = labelRegex.Match(sourceLine.Content);
 
 						sourceLine.Processed = true;
 					}
