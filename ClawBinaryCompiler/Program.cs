@@ -25,15 +25,6 @@ namespace ClawBinaryCompiler
 			}
 
 			File.WriteAllBytes("claw_sample.cex", binaryCode.ToArray());
-
-			string hex = ByteArrayToString(binaryCode.ToArray());
-			File.WriteAllText("claw_sample.cex.txt", hex);
-		}
-
-		public static string ByteArrayToString(byte[] ba)
-		{
-			string hex = BitConverter.ToString(ba);
-			return hex.Replace("-", " ");
 		}
 	}
 }

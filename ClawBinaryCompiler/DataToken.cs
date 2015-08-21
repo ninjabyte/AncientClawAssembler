@@ -62,7 +62,7 @@ namespace ClawBinaryCompiler
 
 		public DataToken(string String)
 		{
-			Bytes = Encoding.ASCII.GetBytes(String);
+			Bytes = Encoding.ASCII.GetBytes(String + '\0');
 			DataType = DataType.UInt8;
 			IsArray = true;
 		}
