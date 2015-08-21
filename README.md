@@ -1,2 +1,2 @@
-# ClawAssembly
+# ClawAssembler
 Assembler for CLAW
