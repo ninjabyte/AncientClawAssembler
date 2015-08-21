@@ -1,17 +1,19 @@
-;; Claw Demo
-;; Calculate the sum of two numbers
-;; If they are 200, write them to stack B
+;; Claw Demo program
+;; (c) 2015 Benedikt Muessig
+;; Licenced under the terms of the MIT Licence
 
-	LET16 A
-.db16u (101)
-	LET16 A
-.db16u (99)
-	ADD8 A
-	LET16 A
-.db16u (200)
-	SUB16 A
-	BRZ A
-.db16 (2)
-	END
-	MOV8 A B
-	
+;; This program calculates a power purely in software
+
+LET16 A
+.DB16U (5)	; m
+LET16 B
+.DB16 (3)	; n
+
+LET16 B
+.DB16 (-1)
+ADD16 B
+
+LET32 B
+.DB32 ()
+br B
+

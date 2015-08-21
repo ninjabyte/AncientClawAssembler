@@ -9,7 +9,14 @@ namespace ClawBinaryCompiler
 	{
 		public static void Main(string[] args)
 		{
-			ClawToken[] tokens = Parser.Parse(File.ReadAllText("claw_sample.asm"));
+			ClawToken[] tokens;
+
+			try {
+				tokens = Parser.Parse(File.ReadAllText("claw_sample.asm"));
+			} catch (Exception ex) {
+				Console.WriteLine("ERR: " + ex.Message);
+				return;
+			}
 
 			var binaryCode = new List<byte>();
 

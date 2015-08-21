@@ -112,6 +112,7 @@ namespace ClawBinaryCompiler
 		BRNN = 0x11c,
 		CALL = 0x120,
 		RET = 0x121,
+		PPTR = 0x124,
 		END = 0x128,
 		ENDZ = 0x129,
 		ENDN = 0x12a,

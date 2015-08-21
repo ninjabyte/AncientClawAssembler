@@ -52,7 +52,7 @@ namespace ClawBinaryCompiler
 				if (!line.Processed && line.Type != CodeLine.LineType.Unknown) {
 					if (line.Type == CodeLine.LineType.Data) {
 						Match match = dataRegex.Match(line.Line);
-						string type = match.Groups[1].Value.ToLower();
+						string type = match.Groups[1].Value.ToUpper();
 						string data = match.Groups[2].Value;
 						string strval = match.Groups[3].Value;
 					
@@ -74,7 +74,7 @@ namespace ClawBinaryCompiler
 							} else {
 								tokens.Add(new DataToken(Convert.ToSByte(values[0])));
 							}
-						} else if (type == "8u") {
+						} else if (type == "8U") {
 							if (values.Count > 1) {
 
 							} else {
@@ -86,7 +86,7 @@ namespace ClawBinaryCompiler
 							} else {
 								tokens.Add(new DataToken(Convert.ToInt16(values[0])));
 							}
-						} else if (type == "16u") {
+						} else if (type == "16U") {
 							if (values.Count > 1) {
 
 							} else {
@@ -98,19 +98,19 @@ namespace ClawBinaryCompiler
 							} else {
 								tokens.Add(new DataToken(Convert.ToInt32(values[0])));
 							}
-						} else if (type == "32u") {
+						} else if (type == "32U") {
 							if (values.Count > 1) {
 
 							} else {
 								tokens.Add(new DataToken(Convert.ToUInt32(values[0])));
 							}
-						} else if (type == "f") {
+						} else if (type == "F") {
 							if (values.Count > 1) {
 
 							} else {
 								tokens.Add(new DataToken(Convert.ToSingle(values[0])));
 							}
-						} else if (type == "s") {
+						} else if (type == "S") {
 							tokens.Add(new DataToken(strval));
 						} else {
 							// TODO: Some error handling
