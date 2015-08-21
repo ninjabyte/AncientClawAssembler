@@ -8,50 +8,85 @@ namespace ClawBinaryCompiler
 	public static class Parser
 	{
 		private static Regex commentRegex;
+		private static string definitionMatchRegex;
+		private static string definitionReplaceRegex;
+
 		private static Regex dataRegex;
 		private static Regex instructionRegex;
 		private static Regex labelRegex;
+		private static Regex defineRegex;
+		private static Regex undefineRegex;
 
 		static Parser()
 		{
+			// init regexes
 			commentRegex = new Regex(";.*");
+			definitionMatchRegex = "(?:^{SEARCH})|(?:([\\t ,:]){SEARCH}$)|(?:([\\t ,:]){REPLACE}([\\t ,:]))";
+			definitionReplaceRegex = "$1$2{REPLACE}$3";
+
 			dataRegex = new Regex("^.[Dd][Bb]([12368FfUuSs]+)[\\t ]* (?:\\(([\\t, '.-]*)\\)|\"([^\"]*)\")$");
 			instructionRegex = new Regex("^([\\w]+)[\\t ,]*([AaBbCcDd])?[\\t ,]*([AaBbCcDd]*)?$");
 			labelRegex = new Regex("^([\\w]):$");
+			defineRegex = new Regex("^#define[\\t ]+(\\w)+(?:[\t ]+.+)?");
+			undefineRegex = new Regex("^#undefine[\\t ]+(\\w)+");
 		}
 
-		public static ClawToken[] Parse(string Source)
+		public static CodeLine[] PreProcess(string Filename)
 		{
-			var lines = new List<CodeLine>();
+			var codeLines = new List<CodeLine>();
+			var defines = new Dictionary<string, string>();
+
+			string mainContents = File.ReadAllText(Filename);
+			mainContents = mainContents.Replace("\r\n", "\n");
+			mainContents = mainContents.Replace("\\\n", "");
+			mainContents = mainContents.Replace("\\n", "\n");
+
+			string[] lines = mainContents.Split('\n');
+
+
 
 			uint lineCount = 1;
 
 			// Remove all whitespace and all comments
-			foreach (string line in Source.Split('\n')) {
+			foreach (string line in lines) {
 				string trimmedLine = commentRegex.Replace(line, "").Trim();
 
 				if (trimmedLine != "") {
 					if (dataRegex.IsMatch(trimmedLine)) {
-						lines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Data });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Data });
 					} else if (instructionRegex.IsMatch(trimmedLine)) {
-						lines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Instruction });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Instruction });
 					} else if (labelRegex.IsMatch(trimmedLine)) {
-						lines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Label });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Label });
 					} else
-						lines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Unknown });
+						codeLines.Add(new CodeLine(trimmedLine, lineCount){ Type = CodeLine.LineType.Unknown });
 				} else
-					lines.Add(new CodeLine("", lineCount){ Type = CodeLine.LineType.Empty, Processed = true });
+					codeLines.Add(new CodeLine("", lineCount){ Type = CodeLine.LineType.Empty, Processed = true });
 
 				lineCount++;
 			}
 
+			return codeLines.ToArray();
+
+			//foreach (KeyValuePair<string, string> kv in Defines)
+			//	line = Regex.Replace(line, definitionMatchRegex.Replace("{SEARCH}", kv.Key.Trim()), definitionReplaceRegex.Replace("{REPLACE}", kv.Value.Trim())).Trim();
+		}
+
+		/// <summary>
+		/// Parse the preprocessed source code lines.
+		/// </summary>
+		/// <param name="CodeLines">Source code lines</param>
+		public static ClawToken[] Parse(CodeLine[] CodeLines)
+		{
 			var tokens = new List<ClawToken>();
 
 			// Process all elements
-			foreach (CodeLine line in lines) {
-				if (!line.Processed && line.Type != CodeLine.LineType.Unknown) {
-					if (line.Type == CodeLine.LineType.Data) {
-						Match match = dataRegex.Match(line.Line);
+			foreach (CodeLine sourceLine in CodeLines) {
+				string line = sourceLine.Line;
+
+				if (!sourceLine.Processed && sourceLine.Type != CodeLine.LineType.Unknown) {
+					if (sourceLine.Type == CodeLine.LineType.Data) {
+						Match match = dataRegex.Match(line);
 						string type = match.Groups[1].Value.ToUpper();
 						string data = match.Groups[2].Value;
 						string strval = match.Groups[3].Value;
@@ -116,9 +151,9 @@ namespace ClawBinaryCompiler
 							// TODO: Some error handling
 						}
 
-						line.Processed = true;
-					} else if (line.Type == CodeLine.LineType.Instruction) {
-						Match match = instructionRegex.Match(line.Line);
+						sourceLine.Processed = true;
+					} else if (sourceLine.Type == CodeLine.LineType.Instruction) {
+						Match match = instructionRegex.Match(sourceLine.Line);
 						string mnemoric = match.Groups[1].Value.ToUpper();
 						string instack = match.Groups[2].Value.ToUpper();
 						string outstack = match.Groups[3].Value.ToUpper();
@@ -129,11 +164,11 @@ namespace ClawBinaryCompiler
 
 						tokens.Add(new InstructionToken(instruction, input_stack, output_stack));
 
-						line.Processed = true;
-					} else if (line.Type == CodeLine.LineType.Label) {
-						Match match = labelRegex.Match(line.Line);
+						sourceLine.Processed = true;
+					} else if (sourceLine.Type == CodeLine.LineType.Label) {
+						Match match = labelRegex.Match(sourceLine.Line);
 
-						line.Processed = true;
+						sourceLine.Processed = true;
 					}
 				}
 			}

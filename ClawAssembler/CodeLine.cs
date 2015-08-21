@@ -22,8 +22,9 @@ namespace ClawBinaryCompiler
 		{
 			Unknown,
 			Empty,
-			Data,
+			Preprocessor,
 			Instruction,
+			Data,
 			Label
 		}
 	}

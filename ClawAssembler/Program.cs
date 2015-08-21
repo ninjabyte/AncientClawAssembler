@@ -12,7 +12,7 @@ namespace ClawBinaryCompiler
 			ClawToken[] tokens;
 
 			try {
-				tokens = Parser.Parse(File.ReadAllText("claw_sample.asm"));
+				tokens = Parser.Parse(Parser.PreProcess("claw_sample.asm"));
 			} catch (Exception ex) {
 				Console.WriteLine("ERR: " + ex.Message);
 				return;
