@@ -6,7 +6,7 @@
     <ProjectGuid>{7A072F3F-29B2-4293-A4C9-77263955B587}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ClawAssembler</RootNamespace>
-    <AssemblyName>ClawAssembler</AssemblyName>
+    <AssemblyName>csm</AssemblyName>
     <ApplicationIcon>chip.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
