@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClawBinaryCompiler
+namespace ClawAssembler
 {
 	public interface ClawToken
 	{

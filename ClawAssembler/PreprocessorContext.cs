@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ClawBinaryCompiler
+namespace ClawAssembler
 {
 	public class PreprocessorContext
 	{

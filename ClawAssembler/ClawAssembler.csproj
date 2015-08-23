@@ -5,8 +5,9 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{7A072F3F-29B2-4293-A4C9-77263955B587}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ClawBinaryCompiler</RootNamespace>
-    <AssemblyName>ClawBinaryCompiler</AssemblyName>
+    <RootNamespace>ClawAssembler</RootNamespace>
+    <AssemblyName>ClawAssembler</AssemblyName>
+    <ApplicationIcon>chip.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,7 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="CommandLine">
-      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll</HintPath>
+      <HintPath>..\..\..\Microcat.ninja\commandline-master\commandline-master\src\CommandLine\bin\Release\CommandLine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -44,16 +45,21 @@
     <Compile Include="DataToken.cs" />
     <Compile Include="ClawInstruction.cs" />
     <Compile Include="ClawStack.cs" />
-    <Compile Include="CommandLineOptions.cs" />
     <Compile Include="LabelToken.cs" />
     <Compile Include="PreprocessorContext.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="ConsoleLogHelper.cs" />
+    <Compile Include="ConsoleOptions.cs" />
+    <Compile Include="ConsoleInterface.cs" />
+    <Compile Include="ParserResult.cs" />
+    <Compile Include="ErrorLevel.cs" />
+    <Compile Include="CodeError.cs" />
+    <Compile Include="Compiler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="claw_sample.asm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

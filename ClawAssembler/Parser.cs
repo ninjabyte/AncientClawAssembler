@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace ClawBinaryCompiler
+namespace ClawAssembler
 {
 	public static class Parser
 	{
@@ -21,14 +21,14 @@ namespace ClawBinaryCompiler
 		{
 			// init regexes
 			commentRegex = new Regex(";.*");
-			definitionMatchRegex = "(?:^{SEARCH})|(?:([\\t ,:]){SEARCH}$)|(?:([\\t ,:]){REPLACE}([\\t ,:]))";
-			definitionReplaceRegex = "$1$2{REPLACE}$3";
+			definitionMatchRegex = "(?:^{SEARCH})|(?:(?<W0>[\\t ,:]){SEARCH}$)|(?:(?<W1>[\\t ,:]){REPLACE}(?<W2>[\\t ,:]))";
+			definitionReplaceRegex = "${W0}${W1}{REPLACE}${W2}";
 
-			dataRegex = new Regex("\\.[Dd][Bb]([12368FfUuSs]+)[\\t ]*(?:\\(([\\d\\t ,\\'\\.\\-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
+			dataRegex = new Regex("\\.[Dd][Bb](8[Uu]?|16[Uu]?|32[Uu]?|[Ss])[\\t ]*(?:\\(([\\d\\t ,\\'\\.\\-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
 			instructionRegex = new Regex("^([\\w]+)[\\t ,]*([AaBbCcDd])?[\\t ,]*([AaBbCcDd]*)?$");
 			labelRegex = new Regex("^([\\w]):$");
-			defineRegex = new Regex("^#define[\\t ]+(\\w)+(?:[\t ]+.+)?");
-			undefineRegex = new Regex("^#undefine[\\t ]+(\\w)+");
+			defineRegex = new Regex("^#[Dd][Ee][Ff][Ii][Nn][Ee][\\t ]+(\\w)+(?:[\t ]+.+)?");
+			undefineRegex = new Regex("^#[Uu][Nn][Dd][Ee][Ff](?:[Ii][Nn][Ee])?[\\t ]+(\\w)+");
 		}
 
 		public static CodeLine[] PreProcess(string Filename)
@@ -76,17 +76,17 @@ namespace ClawBinaryCompiler
 		/// Parse the preprocessed source code lines.
 		/// </summary>
 		/// <param name="CodeLines">Source code lines</param>
-		public static ClawToken[] Parse(CodeLine[] CodeLines)
+		public static ParserResult Parse(CodeLine[] CodeLines)
 		{
 			var tokens = new List<ClawToken>();
+			var errors = new List<CodeError>();
 
 			// Process all elements
-			foreach (CodeLine sourceLine in CodeLines) {
-				string line = sourceLine.Content;
+			foreach (CodeLine line in CodeLines) {
 
-				if (!sourceLine.Processed && sourceLine.Type != CodeLine.LineType.Unknown) {
-					if (sourceLine.Type == CodeLine.LineType.Data) {
-						Match match = dataRegex.Match(line);
+				if (!line.Processed && line.Type != CodeLine.LineType.Unknown) {
+					if (line.Type == CodeLine.LineType.Data) {
+						Match match = dataRegex.Match(line.Content);
 						string type = match.Groups[1].Value.ToUpper();
 						string data = match.Groups[2].Value;
 						string strval = match.Groups[3].Value;
@@ -127,12 +127,12 @@ namespace ClawBinaryCompiler
 						} else if (type == "S") {
 							tokens.Add(new DataToken(strval));
 						} else {
-							Console.WriteLine("Conversion error!");
+							Console.WriteLine(string.Format("ERR: Invalid data type at Line {0} in File {1}!", line.Number, line.File));
 						}
 
-						sourceLine.Processed = true;
-					} else if (sourceLine.Type == CodeLine.LineType.Instruction) {
-						Match match = instructionRegex.Match(sourceLine.Content);
+						line.Processed = true;
+					} else if (line.Type == CodeLine.LineType.Instruction) {
+						Match match = instructionRegex.Match(line.Content);
 						string mnemoric = match.Groups[1].Value.ToUpper();
 						string instack = match.Groups[2].Value.ToUpper();
 						string outstack = match.Groups[3].Value.ToUpper();
@@ -143,16 +143,16 @@ namespace ClawBinaryCompiler
 
 						tokens.Add(new InstructionToken(instruction, input_stack, output_stack));
 
-						sourceLine.Processed = true;
-					} else if (sourceLine.Type == CodeLine.LineType.Label) {
-						Match match = labelRegex.Match(sourceLine.Content);
+						line.Processed = true;
+					} else if (line.Type == CodeLine.LineType.Label) {
+						Match match = labelRegex.Match(line.Content);
 
-						sourceLine.Processed = true;
+						line.Processed = true;
 					}
 				}
 			}
 
-			return tokens.ToArray();
+			return new ParserResult(tokens.ToArray(), CodeLines, errors.ToArray());
 		}
 	}
 }

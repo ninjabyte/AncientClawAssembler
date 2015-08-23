@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ClawBinaryCompiler
+namespace ClawAssembler
 {
 	public class DataToken : ClawToken
 	{
