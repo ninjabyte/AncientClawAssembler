@@ -1,5 +1,7 @@
 DMPSSTR
-.DBS "LOL"
+.DBS "Claw Demo Test Program\n"
+DMPSSTR
+.DBS "Made by gbl08ma\n"
 LET32 D
 .DB32(0)
 ; check that 99 - 101 = -2 (8 bit)
@@ -58,4 +60,6 @@ DEL32 D
 LET32 C
 .DB32(4)
 JMPNZ C ; subtraction was not zero, i.e. we aren't yet at 1000000
+DMPSSTR
+.DBS "Done!\n"
 END
