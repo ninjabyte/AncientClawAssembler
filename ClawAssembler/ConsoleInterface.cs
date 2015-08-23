@@ -16,33 +16,46 @@ namespace ClawAssembler
 					return Execute(options);
 				},
 				               errors => {
-					//ConsoleLogHelper.Print(errors.ToString, ErrorLevel.Critical);
 					return 1;
 				});
-
+			
 			return exitCode;
 		}
 
 		static int Execute(ConsoleOptions Options)
 		{
 			try {
-				CodeLine[] lines = Parser.PreProcess(Options.InputFilename);
-				ParserResult result = Parser.Parse(lines);
-				foreach (CodeError error in result.Errors) {
+				bool abort = false;
+				PreprocessorResult preprocessorResult = Parser.Preprocess(Options.InputFilename);
+
+				foreach (CodeError error in preprocessorResult.Errors) {
 					ConsoleLogHelper.Output(error);
-					
-					if (error.Level >= Options.ErrorLevel) {
-						ConsoleLogHelper.Output("Aborting!", ErrorLevel.Critical);
-						return 1;
-					}
+					abort = (abort || error.Level >= Options.ErrorLevel);
 				}
 
-				byte[] bytes = Compiler.Compile(result.Tokens);
+				if (abort) {
+					ConsoleLogHelper.Output("Preprocessing failed! Aborting!", ErrorLevel.Critical);
+					return 1;
+				}
+
+				ParserResult parserResult = Parser.Parse(preprocessorResult.CodeLines);
+
+				foreach (CodeError error in parserResult.Errors) {
+					ConsoleLogHelper.Output(error);
+					abort = (abort || error.Level >= Options.ErrorLevel);
+				}
+
+				if (abort) {
+					ConsoleLogHelper.Output("Parsing failed! Aborting!", ErrorLevel.Critical);
+					return 1;
+				}
+
+				byte[] bytes = Compiler.Compile(parserResult.Tokens);
 				File.WriteAllBytes(Options.OutputFilename, bytes);
 
 				return 0;
 			} catch (Exception ex) {
-				ConsoleLogHelper.Output(ex.Message, ErrorLevel.Critical);
+				ConsoleLogHelper.Output("Unhandeled error (please report at https://github.com/microcat-dev/ClawAssembler/issues)!" + ex.Message, ErrorLevel.Critical);
 				return 1;
 			}
 		}

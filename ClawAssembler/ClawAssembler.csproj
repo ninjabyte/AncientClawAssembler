@@ -46,7 +46,6 @@
     <Compile Include="ClawInstruction.cs" />
     <Compile Include="ClawStack.cs" />
     <Compile Include="LabelToken.cs" />
-    <Compile Include="PreprocessorContext.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ConsoleLogHelper.cs" />
     <Compile Include="ConsoleOptions.cs" />
@@ -55,6 +54,7 @@
     <Compile Include="ErrorLevel.cs" />
     <Compile Include="CodeError.cs" />
     <Compile Include="Compiler.cs" />
+    <Compile Include="PreprocessorResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

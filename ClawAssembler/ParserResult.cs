@@ -11,14 +11,7 @@ namespace ClawAssembler
 
 		public ParserResult(ClawToken[] Tokens, CodeLine[] Lines, CodeError[] CodeErrors)
 		{
-			var errors = new List<CodeError>();
-
-			foreach (CodeLine line in Lines) {
-				if (line.Type == CodeLine.LineType.Unknown)
-					errors.Add(new CodeError(CodeError.ErrorType.SyntaxError, ErrorLevel.Warning, line));
-			}
-			errors.AddRange(CodeErrors);
-			this.Errors = errors.ToArray();
+			this.Errors = CodeErrors;
 			this.Tokens = Tokens;
 		}
 	}

@@ -25,7 +25,9 @@ namespace ClawAssembler
 			SyntaxError,
 			UnknownDatatype,
 			DatatypeMissmatch,
-			UnknownInstruction
+			UnknownInstruction,
+			DefineNotExistant,
+			IncludeNotFound
 		}
 	}
 }

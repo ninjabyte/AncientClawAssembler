@@ -16,25 +16,28 @@ namespace ClawAssembler
 		private static Regex labelRegex;
 		private static Regex defineRegex;
 		private static Regex undefineRegex;
+		private static Regex includeRegex;
 
 		static Parser()
 		{
 			// init regexes
-			commentRegex = new Regex(";.*");
-			definitionMatchRegex = "(?:^{SEARCH})|(?:(?<W0>[\\t ,:]){SEARCH}$)|(?:(?<W1>[\\t ,:]){REPLACE}(?<W2>[\\t ,:]))";
-			definitionReplaceRegex = "${W0}${W1}{REPLACE}${W2}";
+			commentRegex = new Regex(@";.*");
+			definitionMatchRegex = @"(?:^{SEARCH}$)|(?:(?<PRE0>[\t ,:\(\)""\]){SEARCH}$)|(?:{SEARCH}(?<SUF0>[\t ,:\(\)""\])$)|(?:(?<PRE1>[\t ,:\(\)""\]){SEARCH}(?<SUF1>[\t ,:\(\)""\]))";
+			definitionReplaceRegex = @"${PRE0}${PRE1}{REPLACE}${SUF0}${SUF1}";
 
-			dataRegex = new Regex("\\.[Dd][Bb](8[Uu]?|16[Uu]?|32[Uu]?|[Ss])[\\t ]*(?:\\(([\\d\\t ,\\'\\.\\-XxBb]*)\\)|\\\"([^\\\"]*)\\\")");
-			instructionRegex = new Regex("^([\\w]+)[\\t ,]*([AaBbCcDd])?[\\t ,]*([AaBbCcDd]*)?$");
-			labelRegex = new Regex("^([\\w]):$");
-			defineRegex = new Regex("^#[Dd][Ee][Ff][Ii][Nn][Ee][\\t ]+(\\w)+(?:[\t ]+.+)?");
-			undefineRegex = new Regex("^#[Uu][Nn][Dd][Ee][Ff](?:[Ii][Nn][Ee])?[\\t ]+(\\w)+");
+			dataRegex = new Regex(@"\.[Dd][Bb](8[Uu]?|16[Uu]?|32[Uu]?|[Ss])[\t ]*(?:\(([\d\t ,\'\.\-XxBb]*)\)|\""([^\""]*)\"")$");
+			instructionRegex = new Regex(@"^([\w]+)[\t ,]*([AaBbCcDd])?[\t ,]*([AaBbCcDd]*)?$");
+			labelRegex = new Regex(@"^([\w]):$");
+			defineRegex = new Regex(@"#[Dd][Ee][Ff][Ii][Nn][Ee][\t ]+([^=]+)(?:[\t ]*=[\t ]*(.+))?$");
+			undefineRegex = new Regex(@"^#[Uu][Nn][Dd][Ee][Ff](?:[Ii][Nn][Ee])?[\t ]+([\w]+)$");
+			includeRegex = new Regex(@"^#[Ii][Nn][Cc][Ll][Uu][Dd][Ee][\t ]+""([^""]+)""$");
 		}
 
-		public static CodeLine[] PreProcess(string Filename)
+		public static PreprocessorResult Preprocess(string Filename)
 		{
 			var codeLines = new List<CodeLine>();
 			var defines = new Dictionary<string, string>();
+			var errors = new List<CodeError>();
 
 			string mainContents = File.ReadAllText(Filename);
 			mainContents = mainContents.Replace("\r\n", "\n");
@@ -42,33 +45,95 @@ namespace ClawAssembler
 
 			string[] lines = mainContents.Split('\n');
 
-
+			//var replacementRegexPairs = new Dictionary<Regex, string>();
+			//foreach (KeyValuePair<string, string> kv in defines)
+			//	
 
 			uint lineCount = 1;
 
 			// Remove all whitespace and all comments
 			foreach (string line in lines) {
-				string trimmedLine = commentRegex.Replace(line, "").Trim();
+				string processedLine = commentRegex.Replace(line, "").Trim();
 
-				if (trimmedLine != "") {
-					if (dataRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Data });
-					} else if (instructionRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Instruction });
-					} else if (labelRegex.IsMatch(trimmedLine)) {
-						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Label });
+				//	foreach (KeyValuePair<Regex, string> replacementPair in replacementRegexPairs)
+				//		processedLine = replacementPair.Key.Replace(line, replacementPair.Value).Trim();
+
+				if (processedLine != "") {
+					if (dataRegex.IsMatch(processedLine)) {
+						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Data });
+					} else if (instructionRegex.IsMatch(processedLine)) {
+						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Instruction });
+					} else if (labelRegex.IsMatch(processedLine)) {
+						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Label });
+					} else if (defineRegex.IsMatch(line)) {
+						CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
+							Type = CodeLine.LineType.Preprocessor,
+							Processed = true
+						};
+
+						Match match = defineRegex.Match(line);
+						string search = match.Groups[1].Value;
+						string replace = match.Groups[2].Value;
+						replace = (replace != "") ? replace : "1";
+
+						if (defines.ContainsKey(search))
+							defines[search] = replace;
+						else
+							defines.Add(search, replace);
+
+						codeLines.Add(thisLine);
+					} else if (undefineRegex.IsMatch(line)) {
+						CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
+							Type = CodeLine.LineType.Preprocessor,
+							Processed = true
+						};
+
+						Match match = defineRegex.Match(line);
+						string search = match.Groups[1].Value.Trim();
+
+						if (defines.ContainsKey(search))
+							defines.Remove(search);
+						else
+							errors.Add(new CodeError(CodeError.ErrorType.DefineNotExistant, ErrorLevel.Warning, thisLine));
+
+						codeLines.Add(thisLine);
 					} else
-						codeLines.Add(new CodeLine(trimmedLine, lineCount, Filename){ Type = CodeLine.LineType.Unknown });
-				} else
-					codeLines.Add(new CodeLine("", lineCount, Filename){ Type = CodeLine.LineType.Empty, Processed = true });
+						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Unknown });
+				} else if (includeRegex.IsMatch(line)) {
+					CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
+						Type = CodeLine.LineType.Preprocessor,
+						Processed = true
+					};
+					codeLines.Add(thisLine);
+
+					Match match = includeRegex.Match(line);
+					string filename = match.Groups[1].Value;
+
+					if (!File.Exists(filename))
+						errors.Add(new CodeError(CodeError.ErrorType.IncludeNotFound, ErrorLevel.Error, thisLine));
+					else {
+						PreprocessorResult includeResult = Preprocess(filename);
+						codeLines.AddRange(includeResult.CodeLines);
+						errors.AddRange(includeResult.Errors);
+					}
+				} else {
+					codeLines.Add(new CodeLine(line, lineCount, Filename) {
+						Type = CodeLine.LineType.Empty,
+						Processed = true
+					});
+				}
 
 				lineCount++;
 			}
 
-			return codeLines.ToArray();
+			foreach (CodeLine line in codeLines) {
+				if (line.Type == CodeLine.LineType.Unknown) {
+					errors.Add(new CodeError(CodeError.ErrorType.SyntaxError, ErrorLevel.Error, line));
+					line.Processed = true;
+				}
+			}
 
-			//foreach (KeyValuePair<string, string> kv in Defines)
-			//	line = Regex.Replace(line, definitionMatchRegex.Replace("{SEARCH}", kv.Key.Trim()), definitionReplaceRegex.Replace("{REPLACE}", kv.Value.Trim())).Trim();
+			return new PreprocessorResult(codeLines.ToArray(), errors.ToArray());
 		}
 
 		/// <summary>
@@ -124,7 +189,7 @@ namespace ClawAssembler
 							foreach (string value in values)
 								tokens.Add(new DataToken(Convert.ToSingle(value)));
 						} else if (type == "S") {
-							strval = strval.Replace("\\n", "\n").Replace("\\\\", "\\");
+							strval = strval.Replace("\\\\", "\\").Replace("\\n", "\n");
 							tokens.Add(new DataToken(strval));
 						} else {
 							errors.Add(new CodeError(CodeError.ErrorType.UnknownDatatype, ErrorLevel.Error, line));
