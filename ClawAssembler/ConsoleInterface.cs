@@ -29,11 +29,10 @@ namespace ClawAssembler
 				CodeLine[] lines = Parser.PreProcess(Options.InputFilename);
 				ParserResult result = Parser.Parse(lines);
 				foreach (CodeError error in result.Errors) {
-					if (Options.Verbose)
-						ConsoleLogHelper.Print(error);
+					ConsoleLogHelper.Output(error);
 					
 					if (error.Level >= Options.ErrorLevel) {
-						ConsoleLogHelper.Print("Aborting assemblying!", ErrorLevel.Critical);
+						ConsoleLogHelper.Output("Aborting assemblying!", ErrorLevel.Critical);
 						return 1;
 					}
 				}
@@ -43,7 +42,7 @@ namespace ClawAssembler
 
 				return 0;
 			} catch (Exception ex) {
-				ConsoleLogHelper.Print(ex.Message, ErrorLevel.Critical);
+				ConsoleLogHelper.Output(ex.Message, ErrorLevel.Critical);
 				return 1;
 			}
 		}

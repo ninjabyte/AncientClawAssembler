@@ -23,7 +23,9 @@ namespace ClawAssembler
 		public enum ErrorType : byte
 		{
 			SyntaxError,
-			DatatypeMissmatch
+			UnknownDatatype,
+			DatatypeMissmatch,
+			UnknownInstruction
 		}
 	}
 }

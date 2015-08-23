@@ -127,7 +127,7 @@ namespace ClawAssembler
 						} else if (type == "S") {
 							tokens.Add(new DataToken(strval));
 						} else {
-							Console.WriteLine(string.Format("ERR: Invalid data type at Line {0} in File {1}!", line.Number, line.File));
+							errors.Add(new CodeError(CodeError.ErrorType.UnknownDatatype, ErrorLevel.Error, line));
 						}
 
 						line.Processed = true;
@@ -137,11 +137,17 @@ namespace ClawAssembler
 						string instack = match.Groups[2].Value.ToUpper();
 						string outstack = match.Groups[3].Value.ToUpper();
 
-						ClawInstruction instruction = (ClawInstruction)Enum.Parse(typeof(ClawInstruction), mnemoric);
-						ClawStack input_stack = (instack != "") ? (ClawStack)Enum.Parse(typeof(ClawStack), instack) : ClawStack.A;
-						ClawStack output_stack = (outstack != "") ? (ClawStack)Enum.Parse(typeof(ClawStack), outstack) : input_stack;
+						ClawInstruction instruction;
+						ClawStack input_stack;
+						ClawStack output_stack;
 
-						tokens.Add(new InstructionToken(instruction, input_stack, output_stack));
+						if (Enum.TryParse<ClawInstruction>(mnemoric, true, out instruction)) {
+							input_stack = Enum.TryParse<ClawStack>(instack, true, out input_stack) ? input_stack : ClawStack.A;
+							output_stack = Enum.TryParse<ClawStack>(outstack, true, out output_stack) ? output_stack : input_stack;
+
+							tokens.Add(new InstructionToken(instruction, input_stack, output_stack));
+						} else
+							errors.Add(new CodeError(CodeError.ErrorType.UnknownInstruction, ErrorLevel.Error, line));
 
 						line.Processed = true;
 					} else if (line.Type == CodeLine.LineType.Label) {
