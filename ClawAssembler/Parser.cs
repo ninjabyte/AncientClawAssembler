@@ -223,6 +223,10 @@ namespace ClawAssembler
 				}
 			}
 
+			foreach (CodeLine line in CodeLines)
+				if (line.Processed == false)
+					errors.Add(new CodeError(CodeError.ErrorType.SyntaxError, ErrorLevel.Warning, line));
+
 			return new ParserResult(tokens.ToArray(), CodeLines, errors.ToArray());
 		}
 	}

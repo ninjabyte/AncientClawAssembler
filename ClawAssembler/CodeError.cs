@@ -27,7 +27,8 @@ namespace ClawAssembler
 			DatatypeMissmatch,
 			UnknownInstruction,
 			DefineNotExistant,
-			IncludeNotFound
+			IncludeNotFound,
+			NotYetImplemented
 		}
 	}
 }
