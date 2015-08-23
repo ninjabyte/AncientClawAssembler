@@ -39,7 +39,6 @@ namespace ClawAssembler
 			string mainContents = File.ReadAllText(Filename);
 			mainContents = mainContents.Replace("\r\n", "\n");
 			mainContents = mainContents.Replace("\\\n", "");
-			mainContents = mainContents.Replace("\\n", "\n");
 
 			string[] lines = mainContents.Split('\n');
 
@@ -125,6 +124,7 @@ namespace ClawAssembler
 							foreach (string value in values)
 								tokens.Add(new DataToken(Convert.ToSingle(value)));
 						} else if (type == "S") {
+							strval = strval.Replace("\\n", "\n").Replace("\\\\", "\\");
 							tokens.Add(new DataToken(strval));
 						} else {
 							errors.Add(new CodeError(CodeError.ErrorType.UnknownDatatype, ErrorLevel.Error, line));

@@ -32,7 +32,7 @@ namespace ClawAssembler
 					ConsoleLogHelper.Output(error);
 					
 					if (error.Level >= Options.ErrorLevel) {
-						ConsoleLogHelper.Output("Aborting assemblying!", ErrorLevel.Critical);
+						ConsoleLogHelper.Output("Aborting!", ErrorLevel.Critical);
 						return 1;
 					}
 				}

@@ -24,9 +24,9 @@ namespace ClawAssembler
 		public static void Output(CodeError Error)
 		{
 			if (Error.Level >= ErrorLevel.Error)
-				ErrorStream.WriteLine("{0}: {1} ({2})  at {3} in file {4}", Error.Level.ToString(), Error.Type.ToString(), Error.Remarks, Error.Line.Number, Error.Line.File);
+				ErrorStream.WriteLine("{0}: {1}{2} (at line {3} in file {4})", Error.Level.ToString(), Error.Type.ToString(), (Error.Remarks != "") ? " " + Error.Remarks : "", Error.Line.Number, Error.Line.File);
 			else
-				Console.WriteLine("{0}: {1} ({2})  at {3} in file {4}", Error.Level.ToString(), Error.Type.ToString(), Error.Remarks, Error.Line.Number, Error.Line.File);
+				Console.WriteLine("{0}: {1}{2} (at line {3} in file {4})", Error.Level.ToString(), Error.Type.ToString(), (Error.Remarks != "") ? " " + Error.Remarks : "", Error.Line.Number, Error.Line.File);
 		}
 	}
 }
