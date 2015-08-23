@@ -65,7 +65,7 @@ namespace ClawAssembler
 						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Instruction });
 					} else if (labelRegex.IsMatch(processedLine)) {
 						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Label });
-					} else if (defineRegex.IsMatch(line)) {
+					} else if (defineRegex.IsMatch(line) && false) {
 						CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
 							Type = CodeLine.LineType.Preprocessor,
 							Processed = true
@@ -82,7 +82,7 @@ namespace ClawAssembler
 							defines.Add(search, replace);
 
 						codeLines.Add(thisLine);
-					} else if (undefineRegex.IsMatch(line)) {
+					} else if (undefineRegex.IsMatch(line) && false) {
 						CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
 							Type = CodeLine.LineType.Preprocessor,
 							Processed = true
@@ -97,25 +97,25 @@ namespace ClawAssembler
 							errors.Add(new CodeError(CodeError.ErrorType.DefineNotExistant, ErrorLevel.Warning, thisLine));
 
 						codeLines.Add(thisLine);
+					} else if (includeRegex.IsMatch(line)) {
+						CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
+							Type = CodeLine.LineType.Preprocessor,
+							Processed = true
+						};
+						codeLines.Add(thisLine);
+
+						Match match = includeRegex.Match(line);
+						string filename = match.Groups[1].Value;
+
+						if (!File.Exists(filename))
+							errors.Add(new CodeError(CodeError.ErrorType.IncludeNotFound, ErrorLevel.Error, thisLine));
+						else {
+							PreprocessorResult includeResult = Preprocess(filename);
+							codeLines.AddRange(includeResult.CodeLines);
+							errors.AddRange(includeResult.Errors);
+						}
 					} else
 						codeLines.Add(new CodeLine(processedLine, lineCount, Filename){ Type = CodeLine.LineType.Unknown });
-				} else if (includeRegex.IsMatch(line)) {
-					CodeLine thisLine = new CodeLine(processedLine, lineCount, Filename) {
-						Type = CodeLine.LineType.Preprocessor,
-						Processed = true
-					};
-					codeLines.Add(thisLine);
-
-					Match match = includeRegex.Match(line);
-					string filename = match.Groups[1].Value;
-
-					if (!File.Exists(filename))
-						errors.Add(new CodeError(CodeError.ErrorType.IncludeNotFound, ErrorLevel.Error, thisLine));
-					else {
-						PreprocessorResult includeResult = Preprocess(filename);
-						codeLines.AddRange(includeResult.CodeLines);
-						errors.AddRange(includeResult.Errors);
-					}
 				} else {
 					codeLines.Add(new CodeLine(line, lineCount, Filename) {
 						Type = CodeLine.LineType.Empty,
